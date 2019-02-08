@@ -176,17 +176,78 @@ See [here](ssh.md) for different types of SSH connection with respect to your OS
 
 1. What is the ``grep``command?
 
+  El comando grep busca , en los archivos ingresados, líneas que coincidan con un patrón determinado. Las líneas del archivo que coincidan, será retornadas por la función.
+
 2. What is the meaning of ``#!/bin/python`` at the start of scripts?
 
+  #!/bin/Python se utiliza para indicar que el código se escribió en lenguaje y nomenclatura de Pyton y se debe leer de esta forma.
+
+
 3. Download using ``wget`` the [*bsds500*](https://www2.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/resources.html#bsds500) image segmentation database, and decompress it using ``tar`` (keep it in you hard drive, we will come back over this data in a few weeks).
+
+ MacBook-Pro-de-Daniel-4:Visión DanielViteri$ wget http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/BSR/BSR_bsds500.tgz
+
+ MacBook-Pro-de-Daniel-4:Visión DanielViteri$ tar BSR_bsds500.tgz
+
+ La función wget, requería únicamente ingresarle el hipervínculo de la descarga. Asimismo, la función tar, solo requería la ruta o el nombre del archivo, en caso de estar en la carpeta. 
+
  
 4. What is the disk size of the uncompressed dataset, How many images are in the directory 'BSR/BSDS500/data/images'?
- 
+
+ MacBook-Pro-de-Daniel-4:Visión Daniel Viteri$ du –hs BSR  72M BSR
+
+La función du, permite obtener el tamaño en disco de los archivos. La opción –h, muestra la información en formato simplificado (Usando prefijos de uninades) y da la información de todos los elementos contenidos. Similarmente, –hs, realiza lo mismo, pero solo devuelve el resultado del peso total del directorio y subdirectorios.
+
+MacBook-Pro-de-Daniel-4:Visión Daniel Viteri$ find. –name “*.jpg” | wc –l   500
+
+Con el comando find, se encuentrn todos los archivos que terminen en .jpg, ya que las imágenes terminan así. Esto se obtiene usando ls en cualquier carpeta de imágenes. –name, busca información en el nombre para hallar coincidencias. Por otro lado, wc devuelve el número de líneas del input, por lo cual en este caso nos sirve para contar. Se contaron 500 imágenes
+
+
 5. What are all the different resolutions? What is their format? Tip: use ``awk``, ``sort``, ``uniq`` 
 
+MacBook-Pro-de-Daniel-4:images DanielViteri$ find . -name "*.jpg" | xargs -I{} identify -format '%wx%h\n' {} | awk {print}|sort --unique
+321x481
+481x321
+
+En primer lugar, se utilizó la función find para encontrar todas las imágenes, cómo descrito anteriormente. Después, se utilizó la función identify con la opción –format  '%wx%h\n', para obtener el ancho por la altura, en filas diferentes. Posteriormente, el comando awk se usó para imprimir el resultado. Finalmente, sort – unique, permitió filtrar para obtener los únicos 2 tamaños de las imágenes.
+
+Soporte obtenido de: https://askubuntu.com/questions/238136/how-to-find-all-images-with-a-certain-pixel-size-using-commandline
+
 6. How many of them are in *landscape* orientation (opposed to *portrait*)? Tip: use ``awk`` and ``cut``
+
+#!/bin/bash
+
+res=$( find . -name "*.jpg" | xargs -I{} identify -format '%wx%h\n' {} | cut -f 1 -d 'x')
+
+cont=0
+
+for r in ${res[*]}
+do
+ if [ $r -eq 481 ]
+   then
+let cont=cont+1
+fi
+done
+echo $cont
+
+ MacBook-Pro-de-Daniel-4:images DanielViteri$ bash landscape
+348 
+
+Para identificar las imágenes en landscape, se realizó un script. En primer lugar, se guardó en una variable la primera dimensión de cada imagen. Esto, mediante la función cut, que con la opción –f 1 y –d ‘x’, se obtienen los primeros elementos delimitados por la letra x. Posteriormente, se creó un ciclo que recorriera la variable guardada, y con un contador se determinó cuantas veces la primera dimensión era igual a 481, tal que se tratara de una imagen en forma de landscape. Esto fue posible ya que conocíamos las únicas resoluciones de las imágenes. Finalmente, se corrió el script, obteniendo 348 imágenes en landscape.
  
+Soporte obtenido de: https://www.computerhope.com/unix/ucut.htm
+
 7. Crop all images to make them square (256x256) and save them in a different folder. Tip: do not forget about  [imagemagick](http://www.imagemagick.org/script/index.php).
+
+MacBook-Pro-de-Daniel-4:data DanielViteri$ cp -r images imagescopia
+MacBook-Pro-de-Daniel-4:data DanielViteri$ cd imagescopia
+MacBook-Pro-de-Daniel-4:imagescopia DanielViteri$ find . -name "*.jpg" | xargs mogrify -crop 256X256+0+0 +repage
+
+Con el comando mofrify, después de buscar todas la imágenes, se realizó el cortado de estas. Con las opciones y parámetros 256X256+0+0 +repage, se recorta la imagen para obtener una resultante de 256x256, de la esquina superior izquierda.
+
+Antes de realizar este procedimiento, se realizó el copiado de la carpeta de imágenes, con el fin de trabajar en esta y cortar la base de datos sin modificar las originales.
+
+Soporte obtenido de https://www.imagemagick.org/discourse-server/viewtopic.php?t=15471 
 
 
 # Report
